@@ -1,0 +1,17 @@
+{
+  "name": "lit-tutorial-playground",
+  "version": "1.0.0",
+  "description": "Advanced Lit tutorial and playground",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "lit": "^3.2.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}

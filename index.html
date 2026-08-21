@@ -1,0 +1,1994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lit Tutorial & Playground</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      font-size: 16px;
+      --bg: #0b0d0f;
+      --surface: #13161a;
+      --surface2: #1c2028;
+      --border: #2a2f3a;
+      --accent: #e8ff47;
+      --accent2: #47b4ff;
+      --accent3: #ff6b6b;
+      --text: #e4e8f0;
+      --text-muted: #5a6070;
+      --text-dim: #8892a4;
+      --font-mono: 'DM Mono', monospace;
+      --font-display: 'Syne', sans-serif;
+      --radius: 8px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-display);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Sidebar */
+    #sidebar {
+      width: 280px;
+      min-width: 280px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      overflow-y: auto;
+      z-index: 10;
+    }
+
+    .sidebar-header {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .logo-badge {
+      width: 32px; height: 32px;
+      background: var(--accent);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: #0b0d0f;
+    }
+
+    .sidebar-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    .sidebar-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .sidebar-nav { padding: 12px 0; flex: 1; }
+
+    .nav-group { margin-bottom: 4px; }
+
+    .nav-section {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 12px 20px 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 20px;
+      cursor: pointer;
+      border-radius: 0;
+      transition: background 0.15s, color 0.15s;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text-dim);
+      border-left: 2px solid transparent;
+      font-family: var(--font-display);
+    }
+
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active {
+      background: rgba(232, 255, 71, 0.06);
+      color: var(--accent);
+      border-left-color: var(--accent);
+    }
+
+    .nav-item .num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      min-width: 20px;
+    }
+
+    .nav-item.active .num { color: var(--accent); opacity: 0.6; }
+
+    .nav-badge {
+      margin-left: auto;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+    }
+
+    .badge-new { background: rgba(232,255,71,0.12); color: var(--accent); }
+    .badge-play { background: rgba(71,180,255,0.12); color: var(--accent2); }
+
+    /* Main content */
+    #main {
+      margin-left: 280px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Top bar */
+    #topbar {
+      height: 52px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      background: rgba(11,13,15,0.9);
+      backdrop-filter: blur(10px);
+      z-index: 5;
+    }
+
+    #topbar .breadcrumb {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    #topbar .breadcrumb span { color: var(--text); }
+
+    #topbar .actions { margin-left: auto; display: flex; gap: 8px; }
+
+    .btn {
+      padding: 6px 14px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-dim);
+      font-family: var(--font-display);
+      transition: all 0.15s;
+    }
+
+    .btn:hover { color: var(--text); border-color: var(--text-muted); }
+    .btn.primary { background: var(--accent); color: #0b0d0f; border-color: var(--accent); }
+    .btn.primary:hover { background: #d4eb2a; }
+
+    /* Content area */
+    #content {
+      flex: 1;
+      padding: 40px 32px;
+      max-width: 900px;
+    }
+
+    /* Chapter styles */
+    .chapter { display: none; }
+    .chapter.active { display: block; }
+
+    .chapter-tag {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-family: var(--font-mono);
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .lead {
+      font-size: 16px;
+      color: var(--text-dim);
+      line-height: 1.7;
+      max-width: 620px;
+      margin-bottom: 40px;
+      font-weight: 400;
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin: 40px 0 14px;
+      color: var(--text);
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 28px 0 10px;
+      color: var(--text);
+    }
+
+    p {
+      font-size: 15px;
+      line-height: 1.75;
+      color: var(--text-dim);
+      margin-bottom: 14px;
+    }
+
+    /* Code blocks */
+    .code-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin: 20px 0;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+
+    .code-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      letter-spacing: 0.5px;
+      flex: 1;
+    }
+
+    .code-lang {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(232,255,71,0.1);
+      color: var(--accent);
+      font-family: var(--font-mono);
+    }
+
+    pre {
+      padding: 20px;
+      overflow-x: auto;
+      font-size: 13.5px;
+      line-height: 1.7;
+      font-family: var(--font-mono);
+    }
+
+    code { font-family: var(--font-mono); }
+
+    /* Inline code */
+    p code, li code {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 13px;
+      color: var(--accent2);
+    }
+
+    /* Syntax highlight colors */
+    .k { color: #c792ea; }   /* keyword */
+    .s { color: #c3e88d; }   /* string */
+    .c { color: #546e7a; font-style: italic; } /* comment */
+    .f { color: #82aaff; }   /* function */
+    .n { color: #e4e8f0; }   /* name */
+    .t { color: var(--accent); }  /* tag */
+    .a { color: var(--accent2); } /* attr */
+    .v { color: #f78c6c; }   /* value */
+    .p { color: var(--text-muted); } /* punctuation */
+    .i { color: #ff6b6b; }   /* import */
+
+    /* Demo preview */
+    .demo-area {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin: 20px 0;
+    }
+
+    .demo-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+
+    .demo-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .demo-dot:nth-child(1) { background: #ff5f57; }
+    .demo-dot:nth-child(2) { background: #febc2e; }
+    .demo-dot:nth-child(3) { background: #28c840; }
+
+    .demo-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin-left: 4px;
+    }
+
+    .demo-content {
+      padding: 24px;
+    }
+
+    /* Info boxes */
+    .callout {
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin: 20px 0;
+      border-left: 3px solid;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .callout-title {
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.3px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .callout p { margin-bottom: 0; font-size: 14px; }
+
+    .callout.tip { background: rgba(232,255,71,0.04); border-color: var(--accent); }
+    .callout.tip .callout-title { color: var(--accent); }
+
+    .callout.info { background: rgba(71,180,255,0.04); border-color: var(--accent2); }
+    .callout.info .callout-title { color: var(--accent2); }
+
+    .callout.warn { background: rgba(255,107,107,0.04); border-color: var(--accent3); }
+    .callout.warn .callout-title { color: var(--accent3); }
+
+    /* Comparison table */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .compare-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .compare-card h4 {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    .compare-card ul {
+      list-style: none;
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 2;
+    }
+
+    .compare-card ul li::before {
+      content: '→ ';
+      color: var(--accent);
+    }
+
+    /* Chapter nav */
+    .chapter-nav {
+      display: flex;
+      gap: 12px;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .chapter-nav .btn { padding: 10px 20px; font-size: 13px; }
+    .chapter-nav .btn:last-child { margin-left: auto; }
+
+    /* Playground specific */
+    .playground-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      height: calc(100vh - 52px);
+      overflow: hidden;
+    }
+
+    .editor-pane {
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 10%;
+    }
+
+    .preview-pane { display: flex; flex-direction: column;
+    flex: 1 1 auto;
+    }
+
+    .pane-header {
+      padding: 10px 16px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pane-header .run-btn {
+      margin-left: auto;
+      background: var(--accent);
+      color: #0b0d0f;
+      border: none;
+      padding: 4px 12px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--font-display);
+    }
+
+    textarea.code-editor {
+      flex: 1;
+      background: var(--surface);
+      color: var(--text);
+      border: none;
+      padding: 20px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.7;
+      resize: none;
+      outline: none;
+      tab-size: 2;
+    }
+
+    iframe#preview-frame {
+      flex: 1;
+      border: none;
+      background: #fff;
+    }
+
+    .playground-examples {
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      background: var(--surface);
+    }
+
+    .example-chip {
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-dim);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      transition: all 0.15s;
+    }
+
+    .example-chip:hover, .example-chip.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(232,255,71,0.06);
+    }
+  </style>
+</head>
+<body>
+
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <div class="logo-badge">L</div>
+      <div>
+        <div class="sidebar-title">Lit Deep Dive</div>
+        <div class="sidebar-subtitle">lit-html · LitElement · v3</div>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-group">
+      <div class="nav-section">lit-html</div>
+      <div class="nav-item active" data-chapter="intro">
+        <span class="num">00</span> Introduction
+      </div>
+      <div class="nav-item" data-chapter="ch1">
+        <span class="num">01</span> Template Basics
+      </div>
+      <div class="nav-item" data-chapter="ch2">
+        <span class="num">02</span> Directives
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-section">LitElement</div>
+      <div class="nav-item" data-chapter="ch3">
+        <span class="num">03</span> First Component
+      </div>
+      <div class="nav-item" data-chapter="ch4">
+        <span class="num">04</span> Lifecycle
+      </div>
+      <div class="nav-item" data-chapter="ch5">
+        <span class="num">05</span> Reactive Properties
+      </div>
+      <div class="nav-item" data-chapter="ch6">
+        <span class="num">06</span> Styles & Shadow DOM
+      </div>
+      <div class="nav-item" data-chapter="ch7">
+        <span class="num">07</span> Events & Refs
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-section">Advanced</div>
+      <div class="nav-item" data-chapter="ch8">
+        <span class="num">08</span> Composition Patterns
+      </div>
+      <div class="nav-item" data-chapter="ch9">
+        <span class="num">09</span> Context API
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-section">Playground</div>
+      <div class="nav-item" data-chapter="playground">
+        <span class="num">⚡</span> Live Editor <span class="nav-badge badge-play">live</span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div id="main">
+  <div id="topbar">
+    <span class="breadcrumb">lit-tutorial / <span id="topbar-title">Introduction</span></span>
+    <div class="actions">
+      <button class="btn" id="prev-btn">← Prev</button>
+      <button class="btn primary" id="next-btn">Next →</button>
+    </div>
+  </div>
+
+  <div id="content">
+
+    <!-- ============================================================ -->
+    <!-- INTRO -->
+    <!-- ============================================================ -->
+    <div class="chapter active" id="chapter-intro">
+      <div class="chapter-tag">Chapter 00</div>
+      <h1>Lit:<br>Web Components<br>that don't suck</h1>
+      <p class="lead">
+        Lit is a lightweight library (~5kb) built on top of the native Web Components standard.
+        If you know React or Vue, the mental model translates — but Lit has zero virtual DOM overhead
+        and ships real custom elements the browser natively understands.
+      </p>
+
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h4>🔥 lit-html</h4>
+          <ul>
+            <li>Tagged template literal renderer</li>
+            <li>Updates only changed parts (no vDOM diff)</li>
+            <li>Zero runtime abstraction</li>
+            <li>Works standalone — no component needed</li>
+          </ul>
+        </div>
+        <div class="compare-card">
+          <h4>🧩 LitElement</h4>
+          <ul>
+            <li>Base class extending HTMLElement</li>
+            <li>Reactive property system</li>
+            <li>Shadow DOM & scoped CSS</li>
+            <li>Lifecycle hooks you already know</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-title">Coming from React / Vue</div>
+        <p>Think of <code>lit-html</code> as JSX without a transpiler — it's just JavaScript template literals. <code>LitElement</code> is your component class — like a Vue SFC or a React class component, but compiled to a real browser custom element.</p>
+      </div>
+
+      <h2>Mental model</h2>
+      <p>Lit's update cycle: <strong>state change → schedule microtask → re-render changed bindings only</strong>. No reconciler, no virtual DOM, no fiber. The browser's built-in DOM is the ground truth.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">The entire Lit mental model in 10 lines</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="c">// lit-html: render a template into a container</span>
+<span class="i">import</span> <span class="p">{</span> <span class="n">html</span><span class="p">,</span> <span class="n">render</span> <span class="p">}</span> <span class="i">from</span> <span class="s">'lit'</span><span class="p">;</span>
+
+<span class="k">const</span> <span class="f">template</span> <span class="p">=</span> <span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="p">=></span> <span class="n">html</span><span class="s">`&lt;p&gt;Hello, <span class="p">${</span><span class="n">name</span><span class="p">}</span>!&lt;/p&gt;`</span><span class="p">;</span>
+<span class="f">render</span><span class="p">(</span><span class="f">template</span><span class="p">(</span><span class="s">'Gus'</span><span class="p">),</span> <span class="n">document</span><span class="p">.</span><span class="n">body</span><span class="p">);</span>
+
+<span class="c">// LitElement: a reusable custom element</span>
+<span class="k">class</span> <span class="f">MyEl</span> <span class="k">extends</span> <span class="n">LitElement</span> <span class="p">{</span>
+  <span class="k">static</span> <span class="n">properties</span> <span class="p">=</span> <span class="p">{</span> <span class="n">name</span><span class="p">:</span> <span class="p">{}</span> <span class="p">};</span>
+  <span class="f">render</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">html</span><span class="s">`&lt;p&gt;Hello, <span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="n">name</span><span class="p">}</span>!&lt;/p&gt;`</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">}</span>
+<span class="n">customElements</span><span class="p">.</span><span class="f">define</span><span class="p">(</span><span class="s">'my-el'</span><span class="p">,</span> <span class="n">MyEl</span><span class="p">);</span></pre>
+      </div>
+
+      <h2>Setup</h2>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">install</span>
+          <span class="code-lang">SHELL</span>
+        </div>
+        <pre><span class="f">npm</span> install lit</pre>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-title">This Tutorial</div>
+        <p>Each chapter has explanation + live examples in the <code>src/</code> folders. Hit the Playground tab for a live editor where you can experiment freely.</p>
+      </div>
+
+      <div class="chapter-nav">
+        <button class="btn primary" onclick="goToChapter('ch1')">Start: Template Basics →</button>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CH1: TEMPLATE BASICS -->
+    <!-- ============================================================ -->
+    <div class="chapter" id="chapter-ch1">
+      <div class="chapter-tag">Chapter 01 · lit-html</div>
+      <h1>Template<br>Basics</h1>
+      <p class="lead">The <code>html</code> tag is a tagged template literal. It returns a <code>TemplateResult</code> — a description of DOM, not actual DOM. Lit caches the structure and only patches the dynamic parts on updates.</p>
+
+      <h2>Binding types</h2>
+      <p>There are 5 binding positions, each with a distinct syntax. Getting these right is the foundation of everything.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">src/01-lit-html-basics/bindings.js</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="i">import</span> <span class="p">{</span> <span class="n">html</span><span class="p">,</span> <span class="n">render</span> <span class="p">}</span> <span class="i">from</span> <span class="s">'lit'</span><span class="p">;</span>
+
+<span class="k">const</span> <span class="n">active</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">label</span> <span class="p">=</span> <span class="s">'Click me'</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">count</span> <span class="p">=</span> <span class="v">42</span><span class="p">;</span>
+
+<span class="k">const</span> <span class="n">tpl</span> <span class="p">=</span> <span class="n">html</span><span class="s">`
+  &lt;!-- 1. TEXT binding: value interpolated as text node --&gt;
+  &lt;p&gt;<span class="p">${</span><span class="n">label</span><span class="p">}</span>&lt;/p&gt;
+
+  &lt;!-- 2. ATTRIBUTE binding: reflected as HTML attribute --&gt;
+  &lt;input type="text" value=<span class="p">${</span><span class="n">count</span><span class="p">}</span> /&gt;
+
+  &lt;!-- 3. BOOLEAN ATTRIBUTE: use ?attr= syntax --&gt;
+  &lt;button ?disabled=<span class="p">${</span><span class="p">!</span><span class="n">active</span><span class="p">}</span>&gt;Submit&lt;/button&gt;
+
+  &lt;!-- 4. PROPERTY binding: sets DOM property, not attr --&gt;
+  &lt;input .value=<span class="p">${</span><span class="n">count</span><span class="p">}</span> /&gt;
+
+  &lt;!-- 5. EVENT binding: adds event listener --&gt;
+  &lt;button @click=<span class="p">${</span><span class="p">()</span> <span class="p">=></span> <span class="n">console</span><span class="p">.</span><span class="f">log</span><span class="p">(</span><span class="s">'clicked'</span><span class="p">)}</span>&gt;Click&lt;/button&gt;
+`</span><span class="p">;</span>
+
+<span class="f">render</span><span class="p">(</span><span class="n">tpl</span><span class="p">,</span> <span class="n">document</span><span class="p">.</span><span class="f">querySelector</span><span class="p">(</span><span class="s">'#app'</span><span class="p">));</span></pre>
+      </div>
+
+      <div class="callout warn">
+        <div class="callout-title">Attribute vs Property</div>
+        <p><code>value=${x}</code> sets the HTML attribute (string). <code>.value=${x}</code> sets the JS property (any type). For arrays, objects, and booleans — always use <code>.prop</code> or <code>?attr</code> syntax.</p>
+      </div>
+
+      <h2>Child templates &amp; composition</h2>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">src/01-lit-html-basics/composition.js</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="c">// Nest TemplateResults — Lit handles it natively</span>
+<span class="k">const</span> <span class="f">card</span> <span class="p">=</span> <span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span> <span class="p">=></span> <span class="n">html</span><span class="s">`
+  &lt;div class="card"&gt;
+    &lt;h3&gt;<span class="p">${</span><span class="n">title</span><span class="p">}</span>&lt;/h3&gt;
+    &lt;p&gt;<span class="p">${</span><span class="n">body</span><span class="p">}</span>&lt;/p&gt;
+  &lt;/div&gt;
+`</span><span class="p">;</span>
+
+<span class="c">// Arrays of TemplateResults render as a list</span>
+<span class="k">const</span> <span class="n">items</span> <span class="p">=</span> <span class="p">[</span><span class="s">'Foo'</span><span class="p">,</span> <span class="s">'Bar'</span><span class="p">,</span> <span class="s">'Baz'</span><span class="p">];</span>
+<span class="k">const</span> <span class="n">tpl</span> <span class="p">=</span> <span class="n">html</span><span class="s">`
+  &lt;ul&gt;
+    <span class="p">${</span><span class="n">items</span><span class="p">.</span><span class="f">map</span><span class="p">((</span><span class="n">i</span><span class="p">)</span> <span class="p">=></span> <span class="n">html</span><span class="s">`&lt;li&gt;<span class="p">${</span><span class="n">i</span><span class="p">}</span>&lt;/li&gt;`</span><span class="p">)}</span>
+  &lt;/ul&gt;
+  <span class="p">${</span><span class="f">card</span><span class="p">(</span><span class="s">'Hello'</span><span class="p">,</span> <span class="s">'World'</span><span class="p">)}</span>
+`</span><span class="p">;</span></pre>
+      </div>
+
+      <h2>Conditional rendering</h2>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">Ternary vs nothing</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="i">import</span> <span class="p">{</span> <span class="n">html</span><span class="p">,</span> <span class="n">nothing</span> <span class="p">}</span> <span class="i">from</span> <span class="s">'lit'</span><span class="p">;</span>
+
+<span class="c">// Ternary — renders one of two things</span>
+<span class="n">html</span><span class="s">`<span class="p">${</span><span class="n">loggedIn</span> <span class="p">?</span> <span class="n">html</span><span class="s">`&lt;p&gt;Welcome&lt;/p&gt;`</span> <span class="p">:</span> <span class="n">html</span><span class="s">`&lt;p&gt;Login&lt;/p&gt;`</span><span class="p">}</span>`</span><span class="p">;</span>
+
+<span class="c">// nothing — renders absolutely nothing (no comment node)</span>
+<span class="n">html</span><span class="s">`<span class="p">${</span><span class="n">show</span> <span class="p">?</span> <span class="n">html</span><span class="s">`&lt;div&gt;Visible&lt;/div&gt;`</span> <span class="p">:</span> <span class="n">nothing</span><span class="p">}</span>`</span><span class="p">;</span>
+
+<span class="c">// false, null, undefined also render nothing</span>
+<span class="n">html</span><span class="s">`<span class="p">${</span><span class="n">show</span> <span class="p">&&</span> <span class="n">html</span><span class="s">`&lt;div&gt;Also works&lt;/div&gt;`</span><span class="p">}</span>`</span><span class="p">;</span></pre>
+      </div>
+
+      <div class="chapter-nav">
+        <button class="btn" onclick="goToChapter('intro')">← Intro</button>
+        <button class="btn primary" onclick="goToChapter('ch2')">Directives →</button>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CH2: DIRECTIVES -->
+    <!-- ============================================================ -->
+    <div class="chapter" id="chapter-ch2">
+      <div class="chapter-tag">Chapter 02 · lit-html</div>
+      <h1>Directives</h1>
+      <p class="lead">Directives are special functions that customize how Lit renders a binding. They run during rendering and can hold state between renders — unlike plain expressions.</p>
+
+      <h2>Built-in directives</h2>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">src/02-directives/repeat.js — keyed list rendering</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="i">import</span> <span class="p">{</span> <span class="n">html</span><span class="p">,</span> <span class="n">render</span> <span class="p">}</span> <span class="i">from</span> <span class="s">'lit'</span><span class="p">;</span>
+<span class="i">import</span> <span class="p">{</span> <span class="n">repeat</span> <span class="p">}</span> <span class="i">from</span> <span class="s">'lit/directives/repeat.js'</span><span class="p">;</span>
+
+<span class="k">const</span> <span class="n">items</span> <span class="p">=</span> <span class="p">[</span>
+  <span class="p">{</span> <span class="n">id</span><span class="p">:</span> <span class="v">1</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="s">'Alice'</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="n">id</span><span class="p">:</span> <span class="v">2</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="s">'Bob'</span> <span class="p">},</span>
+<span class="p">];</span>
+
+<span class="c">// repeat(items, keyFn, templateFn)</span>
+<span class="c">// Key function is critical for efficient DOM reuse (like Vue :key)</span>
+<span class="k">const</span> <span class="n">tpl</span> <span class="p">=</span> <span class="n">html</span><span class="s">`
+  &lt;ul&gt;
+    <span class="p">${</span><span class="f">repeat</span><span class="p">(</span>
+      <span class="n">items</span><span class="p">,</span>
+      <span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="p">=></span> <span class="n">item</span><span class="p">.</span><span class="n">id</span><span class="p">,</span>         <span class="c">// key fn</span>
+      <span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="p">=></span> <span class="n">html</span><span class="s">`&lt;li&gt;<span class="p">${</span><span class="n">item</span><span class="p">.</span><span class="n">name</span><span class="p">}</span>&lt;/li&gt;`</span>
+    <span class="p">)}</span>
+  &lt;/ul&gt;
+`</span><span class="p">;</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">src/02-directives/cache.js — avoid re-creating DOM</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="i">import</span> <span class="p">{</span> <span class="n">cache</span> <span class="p">}</span> <span class="i">from</span> <span class="s">'lit/directives/cache.js'</span><span class="p">;</span>
+
+<span class="c">// Without cache: DOM is destroyed/recreated on condition change</span>
+<span class="c">// With cache:    DOM is kept alive, just detached (like v-show)</span>
+<span class="n">html</span><span class="s">`<span class="p">${</span><span class="f">cache</span><span class="p">(</span><span class="n">tab</span> <span class="p">===</span> <span class="s">'a'</span> <span class="p">?</span> <span class="n">html</span><span class="s">`&lt;tab-a&gt;&lt;/tab-a&gt;`</span> <span class="p">:</span> <span class="n">html</span><span class="s">`&lt;tab-b&gt;&lt;/tab-b&gt;`</span><span class="p">)}</span>`</span><span class="p">;</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">src/02-directives/classmap-stylemap.js</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="i">import</span> <span class="p">{</span> <span class="n">classMap</span> <span class="p">}</span> <span class="i">from</span> <span class="s">'lit/directives/class-map.js'</span><span class="p">;</span>
+<span class="i">import</span> <span class="p">{</span> <span class="n">styleMap</span> <span class="p">}</span> <span class="i">from</span> <span class="s">'lit/directives/style-map.js'</span><span class="p">;</span>
+
+<span class="k">const</span> <span class="n">classes</span> <span class="p">=</span> <span class="p">{</span> <span class="n">active</span><span class="p">:</span> <span class="k">true</span><span class="p">,</span> <span class="n">disabled</span><span class="p">:</span> <span class="k">false</span><span class="p">,</span> <span class="n">highlight</span><span class="p">:</span> <span class="n">isNew</span> <span class="p">};</span>
+<span class="k">const</span> <span class="n">styles</span> <span class="p">=</span> <span class="p">{</span> <span class="n">color</span><span class="p">:</span> <span class="s">'red'</span><span class="p">,</span> <span class="n">fontSize</span><span class="p">:</span> <span class="s">'14px'</span> <span class="p">};</span>
+
+<span class="n">html</span><span class="s">`
+  &lt;div class=<span class="p">${</span><span class="f">classMap</span><span class="p">(</span><span class="n">classes</span><span class="p">)}</span>&gt;Styled div&lt;/div&gt;
+  &lt;p style=<span class="p">${</span><span class="f">styleMap</span><span class="p">(</span><span class="n">styles</span><span class="p">)}</span>&gt;Inline styles&lt;/p&gt;
+`</span><span class="p">;</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">src/02-directives/live.js — syncing external state to inputs</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="i">import</span> <span class="p">{</span> <span class="n">live</span> <span class="p">}</span> <span class="i">from</span> <span class="s">'lit/directives/live.js'</span><span class="p">;</span>
+
+<span class="c">// Problem: .value= only sets if value changed since last render</span>
+<span class="c">// live() checks against the live DOM value, not the last rendered value</span>
+<span class="c">// Essential for controlled inputs driven by external state</span>
+<span class="n">html</span><span class="s">`&lt;input .value=<span class="p">${</span><span class="f">live</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="n">value</span><span class="p">)}</span> /&gt;`</span><span class="p">;</span></pre>
+      </div>
+
+      <h2>Custom directives</h2>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">src/02-directives/custom-directive.js</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="i">import</span> <span class="p">{</span> <span class="n">Directive</span><span class="p">,</span> <span class="n">directive</span><span class="p">,</span> <span class="n">PartType</span> <span class="p">}</span> <span class="i">from</span> <span class="s">'lit/directive.js'</span><span class="p">;</span>
+
+<span class="c">// A directive that debounces an event handler</span>
+<span class="k">class</span> <span class="f">DebounceDirective</span> <span class="k">extends</span> <span class="n">Directive</span> <span class="p">{</span>
+  <span class="f">constructor</span><span class="p">(</span><span class="n">partInfo</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">super</span><span class="p">(</span><span class="n">partInfo</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">partInfo</span><span class="p">.</span><span class="n">type</span> <span class="p">!==</span> <span class="n">PartType</span><span class="p">.</span><span class="n">EVENT</span><span class="p">)</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="f">Error</span><span class="p">(</span><span class="s">'debounce() must be used on an event binding'</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="n">_timer</span> <span class="p">=</span> <span class="k">null</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="f">render</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="n">delay</span> <span class="p">=</span> <span class="v">300</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="p">=></span> <span class="p">{</span>
+      <span class="n">clearTimeout</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="n">_timer</span><span class="p">);</span>
+      <span class="k">this</span><span class="p">.</span><span class="n">_timer</span> <span class="p">=</span> <span class="f">setTimeout</span><span class="p">(()</span> <span class="p">=></span> <span class="f">handler</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">delay</span><span class="p">);</span>
+    <span class="p">};</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">const</span> <span class="n">debounce</span> <span class="p">=</span> <span class="f">directive</span><span class="p">(</span><span class="n">DebounceDirective</span><span class="p">);</span>
+
+<span class="c">// Usage</span>
+<span class="n">html</span><span class="s">`&lt;input @input=<span class="p">${</span><span class="f">debounce</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="n">onSearch</span><span class="p">,</span> <span class="v">400</span><span class="p">)}</span> /&gt;`</span><span class="p">;</span></pre>
+      </div>
+
+      <div class="chapter-nav">
+        <button class="btn" onclick="goToChapter('ch1')">← Templates</button>
+        <button class="btn primary" onclick="goToChapter('ch3')">LitElement →</button>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CH3: FIRST COMPONENT -->
+    <!-- ============================================================ -->
+    <div class="chapter" id="chapter-ch3">
+      <div class="chapter-tag">Chapter 03 · LitElement</div>
+      <h1>Your First<br>LitElement</h1>
+      <p class="lead">LitElement extends <code>HTMLElement</code>. When you define a property, Lit automatically schedules a re-render when it changes — batched into a single microtask.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">src/03-lit-element-basics/counter-element.js</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="i">import</span> <span class="p">{</span> <span class="n">LitElement</span><span class="p">,</span> <span class="n">html</span><span class="p">,</span> <span class="n">css</span> <span class="p">}</span> <span class="i">from</span> <span class="s">'lit'</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="f">CounterElement</span> <span class="k">extends</span> <span class="n">LitElement</span> <span class="p">{</span>
+
+  <span class="c">// 1. Declare reactive properties</span>
+  <span class="k">static</span> <span class="n">properties</span> <span class="p">=</span> <span class="p">{</span>
+    <span class="n">count</span><span class="p">:</span> <span class="p">{</span> <span class="n">type</span><span class="p">:</span> <span class="n">Number</span> <span class="p">},</span>
+  <span class="p">};</span>
+
+  <span class="c">// 2. Initialize state in constructor</span>
+  <span class="f">constructor</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">super</span><span class="p">();</span>
+    <span class="k">this</span><span class="p">.</span><span class="n">count</span> <span class="p">=</span> <span class="v">0</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c">// 3. Scoped styles (live in Shadow DOM)</span>
+  <span class="k">static</span> <span class="n">styles</span> <span class="p">=</span> <span class="n">css</span><span class="s">`
+    :host { display: block; font-family: sans-serif; }
+    button { padding: 8px 16px; cursor: pointer; }
+    .count { font-size: 2rem; font-weight: bold; }
+  `</span><span class="p">;</span>
+
+  <span class="c">// 4. Render — called automatically on property change</span>
+  <span class="f">render</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">html</span><span class="s">`
+      &lt;button @click=<span class="p">${</span><span class="p">()</span> <span class="p">=></span> <span class="k">this</span><span class="p">.</span><span class="n">count</span><span class="p">--}</span>&gt;−&lt;/button&gt;
+      &lt;span class="count"&gt;<span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="n">count</span><span class="p">}</span>&lt;/span&gt;
+      &lt;button @click=<span class="p">${</span><span class="p">()</span> <span class="p">=></span> <span class="k">this</span><span class="p">.</span><span class="n">count</span><span class="p">++}</span>&gt;+&lt;/button&gt;
+    `</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">customElements</span><span class="p">.</span><span class="f">define</span><span class="p">(</span><span class="s">'counter-element'</span><span class="p">,</span> <span class="n">CounterElement</span><span class="p">);</span></pre>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-title">Decorator syntax</div>
+        <p>With TypeScript and decorators enabled, you can use <code>@customElement('counter-element')</code> and <code>@property({ type: Number })</code> instead of static fields. This tutorial uses static fields — no transpiler needed.</p>
+      </div>
+
+      <h2>Internal vs reflected state</h2>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">Internal state: @state()</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="i">import</span> <span class="p">{</span> <span class="n">LitElement</span><span class="p">,</span> <span class="n">html</span> <span class="p">}</span> <span class="i">from</span> <span class="s">'lit'</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="f">MyEl</span> <span class="k">extends</span> <span class="n">LitElement</span> <span class="p">{</span>
+  <span class="k">static</span> <span class="n">properties</span> <span class="p">=</span> <span class="p">{</span>
+    <span class="c">// PUBLIC — settable from outside, reflects as attribute</span>
+    <span class="n">label</span><span class="p">:</span> <span class="p">{</span> <span class="n">type</span><span class="p">:</span> <span class="n">String</span> <span class="p">},</span>
+
+    <span class="c">// INTERNAL — like Vue's data() or React's useState</span>
+    <span class="c">// { state: true } means: don't reflect to attribute</span>
+    <span class="n">_open</span><span class="p">:</span> <span class="p">{</span> <span class="n">state</span><span class="p">:</span> <span class="k">true</span> <span class="p">},</span>
+  <span class="p">};</span>
+
+  <span class="f">constructor</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">super</span><span class="p">();</span>
+    <span class="k">this</span><span class="p">.</span><span class="n">label</span> <span class="p">=</span> <span class="s">''</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="n">_open</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span></pre>
+      </div>
+
+      <div class="chapter-nav">
+        <button class="btn" onclick="goToChapter('ch2')">← Directives</button>
+        <button class="btn primary" onclick="goToChapter('ch4')">Lifecycle →</button>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CH4: LIFECYCLE -->
+    <!-- ============================================================ -->
+    <div class="chapter" id="chapter-ch4">
+      <div class="chapter-tag">Chapter 04 · LitElement</div>
+      <h1>Lifecycle</h1>
+      <p class="lead">Lit's lifecycle is a superset of the native custom elements lifecycle. You get hooks for both DOM connection and reactive update cycles.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">src/04-lifecycle/lifecycle-element.js — full annotated lifecycle</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="k">class</span> <span class="f">LifecycleEl</span> <span class="k">extends</span> <span class="n">LitElement</span> <span class="p">{</span>
+
+  <span class="c">// ─── Native Custom Element lifecycle ────────────────────────────</span>
+
+  <span class="f">connectedCallback</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">super</span><span class="p">.</span><span class="f">connectedCallback</span><span class="p">();</span>  <span class="c">// always call super</span>
+    <span class="c">// Element added to DOM. Subscribe to stores, start timers, etc.</span>
+    <span class="k">this</span><span class="p">.</span><span class="n">_sub</span> <span class="p">=</span> <span class="n">store</span><span class="p">.</span><span class="f">subscribe</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="f">onStoreUpdate</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="f">disconnectedCallback</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">super</span><span class="p">.</span><span class="f">disconnectedCallback</span><span class="p">();</span>
+    <span class="c">// Element removed from DOM. ALWAYS clean up subscriptions!</span>
+    <span class="k">this</span><span class="p">.</span><span class="n">_sub</span><span class="p">.</span><span class="f">unsubscribe</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="c">// ─── Lit reactive update lifecycle ──────────────────────────────</span>
+
+  <span class="f">willUpdate</span><span class="p">(</span><span class="n">changedProps</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c">// Called before render(). Compute derived state here.</span>
+    <span class="c">// changedProps: Map of { propName => oldValue }</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">changedProps</span><span class="p">.</span><span class="f">has</span><span class="p">(</span><span class="s">'items'</span><span class="p">))</span>
+      <span class="k">this</span><span class="p">.</span><span class="n">_sorted</span> <span class="p">=</span> <span class="p">[...</span><span class="k">this</span><span class="p">.</span><span class="n">items</span><span class="p">].</span><span class="f">sort</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="f">render</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">html</span><span class="s">`...`</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="f">firstUpdated</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c">// Fires ONCE after first render. Use for focus, measurements, etc.</span>
+    <span class="k">this</span><span class="p">.</span><span class="n">shadowRoot</span><span class="p">.</span><span class="f">querySelector</span><span class="p">(</span><span class="s">'input'</span><span class="p">)?.</span><span class="f">focus</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="f">updated</span><span class="p">(</span><span class="n">changedProps</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c">// After every render. Avoid triggering another render here</span>
+    <span class="c">// (causes infinite loops). Use for imperative DOM integration.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">changedProps</span><span class="p">.</span><span class="f">has</span><span class="p">(</span><span class="s">'open'</span><span class="p">)</span> <span class="p">&&</span> <span class="k">this</span><span class="p">.</span><span class="n">open</span><span class="p">)</span>
+      <span class="k">this</span><span class="p">.</span><span class="f">_animate</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="c">// Wait for pending renders to settle</span>
+  <span class="k">async</span> <span class="f">someAsyncAction</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="n">loading</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+    <span class="k">await</span> <span class="k">this</span><span class="p">.</span><span class="n">updateComplete</span><span class="p">;</span>  <span class="c">// Promise that resolves after render</span>
+    <span class="c">// Now safe to measure DOM, read computed styles, etc.</span>
+  <span class="p">}</span>
+<span class="p">}</span></pre>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-title">willUpdate vs updated</div>
+        <p><strong>willUpdate</strong>: sync, before render, safe to mutate state. <strong>updated</strong>: after render, for imperative DOM work. Never trigger reactive property changes inside <code>updated()</code> without a guard — you'll create an infinite loop.</p>
+      </div>
+
+      <div class="chapter-nav">
+        <button class="btn" onclick="goToChapter('ch3')">← First Component</button>
+        <button class="btn primary" onclick="goToChapter('ch5')">Reactive Props →</button>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CH5: REACTIVE PROPERTIES -->
+    <!-- ============================================================ -->
+    <div class="chapter" id="chapter-ch5">
+      <div class="chapter-tag">Chapter 05 · LitElement</div>
+      <h1>Reactive<br>Properties</h1>
+      <p class="lead">Properties are the reactive data layer of LitElement. Understanding their options is what separates beginner from senior Lit work.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">src/05-reactive-props/property-options.js — all options explained</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="k">static</span> <span class="n">properties</span> <span class="p">=</span> <span class="p">{</span>
+  <span class="c">type: converter used for attribute |  property reflection</span>
+  <span class="n">count</span><span class="p">:</span> <span class="p">{</span> <span class="n">type</span><span class="p">:</span> <span class="n">Number</span> <span class="p">},</span>
+  <span class="n">active</span><span class="p">:</span> <span class="p">{</span> <span class="n">type</span><span class="p">:</span> <span class="n">Boolean</span> <span class="p">},</span>
+  <span class="n">items</span><span class="p">:</span> <span class="p">{</span> <span class="n">type</span><span class="p">:</span> <span class="n">Array</span> <span class="p">},</span>   <span class="c">// JSON.parse/stringify for attribute</span>
+
+  <span class="c">// attribute: false — prop not observable from HTML attribute</span>
+  <span class="n">_data</span><span class="p">:</span> <span class="p">{</span> <span class="n">attribute</span><span class="p">:</span> <span class="k">false</span> <span class="p">},</span>
+
+  <span class="c">// attribute: 'my-name' — custom attribute name (kebab-case)</span>
+  <span class="n">firstName</span><span class="p">:</span> <span class="p">{</span> <span class="n">type</span><span class="p">:</span> <span class="n">String</span><span class="p">,</span> <span class="n">attribute</span><span class="p">:</span> <span class="s">'first-name'</span> <span class="p">},</span>
+
+  <span class="c">// reflect: true — mirrors property back to attribute (for CSS :attr selectors)</span>
+  <span class="n">selected</span><span class="p">:</span> <span class="p">{</span> <span class="n">type</span><span class="p">:</span> <span class="n">Boolean</span><span class="p">,</span> <span class="n">reflect</span><span class="p">:</span> <span class="k">true</span> <span class="p">},</span>
+
+  <span class="c">// state: true — internal reactive state, no attribute reflection</span>
+  <span class="n">_loading</span><span class="p">:</span> <span class="p">{</span> <span class="n">state</span><span class="p">:</span> <span class="k">true</span> <span class="p">},</span>
+
+  <span class="c">// hasChanged: custom equality check (skip render if unchanged)</span>
+  <span class="n">data</span><span class="p">:</span> <span class="p">{</span>
+    <span class="n">type</span><span class="p">:</span> <span class="n">Object</span><span class="p">,</span>
+    <span class="f">hasChanged</span><span class="p">(</span><span class="n">newVal</span><span class="p">,</span> <span class="n">oldVal</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="n">newVal</span><span class="p">?.</span><span class="n">id</span> <span class="p">!==</span> <span class="n">oldVal</span><span class="p">?.</span><span class="n">id</span><span class="p">;</span>
+    <span class="p">},</span>
+  <span class="p">},</span>
+<span class="p">};</span></pre>
+      </div>
+
+      <h2>Mutating arrays &amp; objects</h2>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">Triggering re-render on mutable state</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="c">// ❌ WON'T trigger render — same reference</span>
+<span class="k">this</span><span class="p">.</span><span class="n">items</span><span class="p">.</span><span class="f">push</span><span class="p">(</span><span class="n">newItem</span><span class="p">);</span>
+
+<span class="c">// ✅ New reference — triggers render</span>
+<span class="k">this</span><span class="p">.</span><span class="n">items</span> <span class="p">=</span> <span class="p">[...</span><span class="k">this</span><span class="p">.</span><span class="n">items</span><span class="p">,</span> <span class="n">newItem</span><span class="p">];</span>
+
+<span class="c">// ✅ Or force update manually</span>
+<span class="k">this</span><span class="p">.</span><span class="n">items</span><span class="p">.</span><span class="f">push</span><span class="p">(</span><span class="n">newItem</span><span class="p">);</span>
+<span class="k">this</span><span class="p">.</span><span class="f">requestUpdate</span><span class="p">(</span><span class="s">'items'</span><span class="p">,</span> <span class="n">prevItems</span><span class="p">);</span></pre>
+      </div>
+
+      <div class="chapter-nav">
+        <button class="btn" onclick="goToChapter('ch4')">← Lifecycle</button>
+        <button class="btn primary" onclick="goToChapter('ch6')">Styles →</button>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CH6: STYLES -->
+    <!-- ============================================================ -->
+    <div class="chapter" id="chapter-ch6">
+      <div class="chapter-tag">Chapter 06 · LitElement</div>
+      <h1>Styles &amp;<br>Shadow DOM</h1>
+      <p class="lead">Shadow DOM gives LitElement true style encapsulation. External CSS cannot leak in; internal CSS cannot leak out — except through CSS custom properties.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">src/06-styles/styled-element.js</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="i">import</span> <span class="p">{</span> <span class="n">LitElement</span><span class="p">,</span> <span class="n">html</span><span class="p">,</span> <span class="n">css</span><span class="p">,</span> <span class="n">unsafeCSS</span> <span class="p">}</span> <span class="i">from</span> <span class="s">'lit'</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="f">StyledEl</span> <span class="k">extends</span> <span class="n">LitElement</span> <span class="p">{</span>
+  <span class="k">static</span> <span class="n">styles</span> <span class="p">=</span> <span class="n">css</span><span class="s">`
+    <span class="c">/* :host = the element itself */</span>
+    :host {
+      display: block;
+      padding: 16px;
+
+      <span class="c">/* Expose CSS vars for theming from outside */</span>
+      color: var(--my-el-color, #333);
+      background: var(--my-el-bg, white);
+    }
+
+    <span class="c">/* :host([attr]) — style host based on attribute */</span>
+    :host([selected]) { border: 2px solid blue; }
+    :host([disabled]) { opacity: 0.5; pointer-events: none; }
+
+    <span class="c">/* ::slotted — style projected slot content */</span>
+    ::slotted(p) { margin: 0; font-size: 14px; }
+
+    <span class="c">/* :host-context — style based on ancestor (rare but useful) */</span>
+    :host-context(.dark-theme) { background: #1a1a1a; }
+  `</span><span class="p">;</span>
+
+  <span class="f">render</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">html</span><span class="s">`
+      &lt;div&gt;
+        &lt;slot name="header"&gt;&lt;/slot&gt;  &lt;!-- named slot --&gt;
+        &lt;slot&gt;&lt;/slot&gt;                &lt;!-- default slot --&gt;
+      &lt;/div&gt;
+    `</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span></pre>
+      </div>
+
+      <h2>Shared styles</h2>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">src/06-styles/shared-styles.js</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="c">// Define shared styles once as a CSSResult</span>
+<span class="k">export const</span> <span class="n">typography</span> <span class="p">=</span> <span class="n">css</span><span class="s">`
+  h1 { font-size: 2rem; line-height: 1.2; }
+  p  { line-height: 1.6; }
+`</span><span class="p">;</span>
+
+<span class="k">export const</span> <span class="n">tokens</span> <span class="p">=</span> <span class="n">css</span><span class="s">`
+  :host { --space-sm: 8px; --space-md: 16px; }
+`</span><span class="p">;</span>
+
+<span class="c">// In your element: compose multiple stylesheets</span>
+<span class="k">class</span> <span class="f">MyEl</span> <span class="k">extends</span> <span class="n">LitElement</span> <span class="p">{</span>
+  <span class="k">static</span> <span class="n">styles</span> <span class="p">=</span> <span class="p">[</span><span class="n">tokens</span><span class="p">,</span> <span class="n">typography</span><span class="p">,</span> <span class="n">css</span><span class="s">`
+    .local { color: red; }
+  `</span><span class="p">];</span>
+<span class="p">}</span></pre>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-title">Adoptable Stylesheets</div>
+        <p>Lit uses <strong>Constructable Stylesheets</strong> (CSSStyleSheet) under the hood — styles are shared as a single object across all instances of a component, not duplicated. This is significantly more memory-efficient than injecting <code>&lt;style&gt;</code> tags.</p>
+      </div>
+
+      <div class="chapter-nav">
+        <button class="btn" onclick="goToChapter('ch5')">← Reactive Props</button>
+        <button class="btn primary" onclick="goToChapter('ch7')">Events & Refs →</button>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CH7: EVENTS & REFS -->
+    <!-- ============================================================ -->
+    <div class="chapter" id="chapter-ch7">
+      <div class="chapter-tag">Chapter 07 · LitElement</div>
+      <h1>Events &amp; Refs</h1>
+      <p class="lead">Lit handles events declaratively in templates and gives you <code>@query</code>/<code>@queryAll</code> decorators (or <code>shadowRoot.querySelector</code>) for direct DOM access.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">src/07-events/event-element.js</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="k">class</span> <span class="f">EventEl</span> <span class="k">extends</span> <span class="n">LitElement</span> <span class="p">{</span>
+
+  <span class="c">// ─── Querying shadow DOM ─────────────────────────────────────────</span>
+  <span class="c">// Without decorators — use getter with shadowRoot</span>
+  <span class="k">get</span> <span class="n">_input</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="n">shadowRoot</span><span class="p">.</span><span class="f">querySelector</span><span class="p">(</span><span class="s">'input'</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="c">// ─── Dispatching events up ───────────────────────────────────────</span>
+  <span class="f">_onSubmit</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">const</span> <span class="n">val</span> <span class="p">=</span> <span class="k">this</span><span class="p">.</span><span class="n">_input</span><span class="p">.</span><span class="n">value</span><span class="p">;</span>
+
+    <span class="c">// bubbles: true — event propagates through shadow DOM</span>
+    <span class="c">// composed: true — event crosses shadow DOM boundary</span>
+    <span class="k">this</span><span class="p">.</span><span class="f">dispatchEvent</span><span class="p">(</span><span class="k">new</span> <span class="f">CustomEvent</span><span class="p">(</span><span class="s">'my-submit'</span><span class="p">,</span> <span class="p">{</span>
+      <span class="n">detail</span><span class="p">:</span> <span class="p">{</span> <span class="n">value</span><span class="p">:</span> <span class="n">val</span> <span class="p">},</span>
+      <span class="n">bubbles</span><span class="p">:</span> <span class="k">true</span><span class="p">,</span>
+      <span class="n">composed</span><span class="p">:</span> <span class="k">true</span><span class="p">,</span>
+    <span class="p">}));</span>
+  <span class="p">}</span>
+
+  <span class="c">// ─── Event handler patterns ──────────────────────────────────────</span>
+  <span class="f">render</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">html</span><span class="s">`
+      &lt;input /&gt;
+
+      &lt;!-- Arrow fn: new fn each render (bad for perf on hot lists) --&gt;
+      &lt;button @click=<span class="p">${</span><span class="p">()</span> <span class="p">=></span> <span class="k">this</span><span class="p">.</span><span class="f">_onSubmit</span><span class="p">()}</span>&gt;Submit&lt;/button&gt;
+
+      &lt;!-- Method reference: Lit binds automatically, no rebind --&gt;
+      &lt;button @click=<span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="n">_onSubmit</span><span class="p">}</span>&gt;Submit&lt;/button&gt;
+
+      &lt;!-- EventListener object: handleEvent pattern --&gt;
+      &lt;button @click=<span class="p">${</span><span class="k">this</span><span class="p">}</span>&gt;Submit&lt;/button&gt;
+    `</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c">// The handleEvent pattern — single listener object</span>
+  <span class="f">handleEvent</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">type</span> <span class="p">===</span> <span class="s">'click'</span><span class="p">)</span> <span class="k">this</span><span class="p">.</span><span class="f">_onSubmit</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">}</span></pre>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-title">composed: true is crucial</div>
+        <p>Without <code>composed: true</code>, a <code>CustomEvent</code> dispatched from inside a shadow root <strong>will not bubble past the shadow boundary</strong>. Parent components listening with <code>@my-event</code> will never see it.</p>
+      </div>
+
+      <div class="chapter-nav">
+        <button class="btn" onclick="goToChapter('ch6')">← Styles</button>
+        <button class="btn primary" onclick="goToChapter('ch8')">Composition →</button>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CH8: COMPOSITION -->
+    <!-- ============================================================ -->
+    <div class="chapter" id="chapter-ch8">
+      <div class="chapter-tag">Chapter 08 · Advanced</div>
+      <h1>Composition<br>Patterns</h1>
+      <p class="lead">Lit offers two primary composition mechanisms beyond plain inheritance: <strong>Reactive Controllers</strong> (logic extraction) and <strong>Mixins</strong> (shared behavior across class hierarchies).</p>
+
+      <h2>Reactive Controllers</h2>
+      <p>Controllers are objects that hook into a host element's lifecycle. Think of them as composable lifecycle logic — the equivalent of Vue composables or React hooks.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">src/08-composition/mouse-controller.js</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="k">class</span> <span class="f">MouseController</span> <span class="p">{</span>
+  <span class="f">constructor</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="n">host</span> <span class="p">=</span> <span class="n">host</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="n">pos</span> <span class="p">=</span> <span class="p">{</span> <span class="n">x</span><span class="p">:</span> <span class="v">0</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="v">0</span> <span class="p">};</span>
+    <span class="n">host</span><span class="p">.</span><span class="f">addController</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>  <span class="c">// register with host</span>
+  <span class="p">}</span>
+
+  <span class="c">// Controller lifecycle mirrors host lifecycle</span>
+  <span class="f">hostConnected</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">window</span><span class="p">.</span><span class="f">addEventListener</span><span class="p">(</span><span class="s">'mousemove'</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="f">hostDisconnected</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">window</span><span class="p">.</span><span class="f">removeEventListener</span><span class="p">(</span><span class="s">'mousemove'</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="f">handleEvent</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="n">pos</span> <span class="p">=</span> <span class="p">{</span> <span class="n">x</span><span class="p">:</span> <span class="n">e</span><span class="p">.</span><span class="n">clientX</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">e</span><span class="p">.</span><span class="n">clientY</span> <span class="p">};</span>
+    <span class="k">this</span><span class="p">.</span><span class="n">host</span><span class="p">.</span><span class="f">requestUpdate</span><span class="p">();</span>  <span class="c">// trigger host re-render</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c">// Usage in any LitElement</span>
+<span class="k">class</span> <span class="f">MyEl</span> <span class="k">extends</span> <span class="n">LitElement</span> <span class="p">{</span>
+  <span class="n">mouse</span> <span class="p">=</span> <span class="k">new</span> <span class="f">MouseController</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+  <span class="f">render</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">html</span><span class="s">`X: <span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="n">mouse</span><span class="p">.</span><span class="n">pos</span><span class="p">.</span><span class="n">x</span><span class="p">}</span>, Y: <span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="n">mouse</span><span class="p">.</span><span class="n">pos</span><span class="p">.</span><span class="n">y</span><span class="p">}</span>`</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span></pre>
+      </div>
+
+      <h2>Mixins</h2>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">src/08-composition/disabled-mixin.js</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="c">// Mixin: a function that takes a base class and returns a new class</span>
+<span class="k">const</span> <span class="f">DisabledMixin</span> <span class="p">=</span> <span class="p">(</span><span class="n">Base</span><span class="p">)</span> <span class="p">=></span> <span class="k">class</span> <span class="k">extends</span> <span class="n">Base</span> <span class="p">{</span>
+  <span class="k">static</span> <span class="n">properties</span> <span class="p">=</span> <span class="p">{</span>
+    <span class="p">...</span><span class="n">Base</span><span class="p">.</span><span class="n">properties</span><span class="p">,</span>  <span class="c">// preserve existing props</span>
+    <span class="n">disabled</span><span class="p">:</span> <span class="p">{</span> <span class="n">type</span><span class="p">:</span> <span class="n">Boolean</span><span class="p">,</span> <span class="n">reflect</span><span class="p">:</span> <span class="k">true</span> <span class="p">},</span>
+  <span class="p">};</span>
+
+  <span class="f">constructor</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">super</span><span class="p">();</span>
+    <span class="k">this</span><span class="p">.</span><span class="n">disabled</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">const</span> <span class="f">FocusMixin</span> <span class="p">=</span> <span class="p">(</span><span class="n">Base</span><span class="p">)</span> <span class="p">=></span> <span class="k">class</span> <span class="k">extends</span> <span class="n">Base</span> <span class="p">{</span>
+  <span class="f">focus</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="n">shadowRoot</span><span class="p">.</span><span class="f">querySelector</span><span class="p">(</span><span class="s">'[tabindex]'</span><span class="p">)?.</span><span class="f">focus</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="c">// Compose multiple mixins</span>
+<span class="k">class</span> <span class="f">MyButton</span> <span class="k">extends</span> <span class="f">FocusMixin</span><span class="p">(</span><span class="f">DisabledMixin</span><span class="p">(</span><span class="n">LitElement</span><span class="p">))</span> <span class="p">{</span>
+  <span class="f">render</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">html</span><span class="s">`&lt;button ?disabled=<span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="n">disabled</span><span class="p">}</span>&gt;&lt;slot&gt;&lt;/slot&gt;&lt;/button&gt;`</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span></pre>
+      </div>
+
+      <div class="chapter-nav">
+        <button class="btn" onclick="goToChapter('ch7')">← Events</button>
+        <button class="btn primary" onclick="goToChapter('ch9')">Context API →</button>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CH9: CONTEXT -->
+    <!-- ============================================================ -->
+    <div class="chapter" id="chapter-ch9">
+      <div class="chapter-tag">Chapter 09 · Advanced</div>
+      <h1>Context API</h1>
+      <p class="lead">Context lets you pass data through the component tree without prop drilling — the Lit equivalent of React Context or Vue's provide/inject. It uses a DOM event-based protocol under the hood.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">src/09-context/theme-context.js — define + provide</span>
+          <span class="code-lang">JS</span>
+        </div>
+        <pre><span class="i">import</span> <span class="p">{</span> <span class="n">createContext</span><span class="p">,</span> <span class="n">provide</span><span class="p">,</span> <span class="n">consume</span> <span class="p">}</span>
+  <span class="i">from</span> <span class="s">'@lit/context'</span><span class="p">;</span>
+
+<span class="c">// 1. Define a typed context key</span>
+<span class="k">export const</span> <span class="n">themeContext</span> <span class="p">=</span> <span class="f">createContext</span><span class="p">(</span><span class="s">'theme'</span><span class="p">);</span>
+
+<span class="c">// 2. Provider — high up in the tree</span>
+<span class="k">class</span> <span class="f">AppRoot</span> <span class="k">extends</span> <span class="n">LitElement</span> <span class="p">{</span>
+  <span class="k">static</span> <span class="n">properties</span> <span class="p">=</span> <span class="p">{</span>
+    <span class="n">theme</span><span class="p">:</span> <span class="p">{</span>
+      <span class="c">// The @provide decorator (static fields equivalent below)</span>
+      <span class="n">context</span><span class="p">:</span> <span class="n">themeContext</span><span class="p">,</span>
+      <span class="n">type</span><span class="p">:</span> <span class="n">Object</span><span class="p">,</span>
+    <span class="p">},</span>
+  <span class="p">};</span>
+
+  <span class="f">constructor</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">super</span><span class="p">();</span>
+    <span class="c">// Any component that requests themeContext will receive this</span>
+    <span class="k">this</span><span class="p">.</span><span class="n">theme</span> <span class="p">=</span> <span class="p">{</span> <span class="n">primary</span><span class="p">:</span> <span class="s">'blue'</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="s">'dark'</span> <span class="p">};</span>
+  <span class="p">}</span>
+
+  <span class="f">render</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">html</span><span class="s">`&lt;slot&gt;&lt;/slot&gt;`</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c">// 3. Consumer — anywhere in the tree</span>
+<span class="k">class</span> <span class="f">ThemedButton</span> <span class="k">extends</span> <span class="n">LitElement</span> <span class="p">{</span>
+  <span class="k">static</span> <span class="n">properties</span> <span class="p">=</span> <span class="p">{</span>
+    <span class="n">theme</span><span class="p">:</span> <span class="p">{</span> <span class="n">context</span><span class="p">:</span> <span class="n">themeContext</span> <span class="p">},</span>
+  <span class="p">};</span>
+
+  <span class="f">render</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">html</span><span class="s">`
+      &lt;button style="background: <span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="n">theme</span><span class="p">?.</span><span class="n">primary</span><span class="p">}</span>"&gt;
+        &lt;slot&gt;&lt;/slot&gt;
+      &lt;/button&gt;
+    `</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span></pre>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-title">How context works</div>
+        <p>Consumers dispatch a <code>context-request</code> DOM event up the tree. The nearest provider intercepts it and calls the callback with the value. It uses no global state — it's pure DOM event bubbling. This means it works across frameworks too.</p>
+      </div>
+
+      <div class="chapter-nav">
+        <button class="btn" onclick="goToChapter('ch8')">← Composition</button>
+        <button class="btn primary" onclick="goToChapter('playground')">⚡ Playground →</button>
+      </div>
+    </div>
+
+    <!-- PLAYGROUND is handled separately in JS below -->
+    <div class="chapter" id="chapter-playground"></div>
+
+  </div><!-- /#content -->
+</div><!-- /#main -->
+
+<!-- PLAYGROUND LAYOUT (shown outside #content) -->
+<div id="playground-ui" style="display:none; position:fixed; top:52px; left:280px; right:0; bottom:0; display:none; flex-direction:column;">
+  <div class="playground-examples">
+    <span class="example-chip active" data-example="counter">counter</span>
+    <span class="example-chip" data-example="todo">todo list</span>
+    <span class="example-chip" data-example="fetch">async fetch</span>
+    <span class="example-chip" data-example="events">events</span>
+    <span class="example-chip" data-example="directives">directives</span>
+    <span class="example-chip" data-example="controller">controller</span>
+  </div>
+  <div style="display:flex; flex:1; overflow:hidden;">
+    <div class="editor-pane">
+      <div class="pane-header">
+        editor.js
+        <button class="run-btn" id="run-btn">▶ Run</button>
+      </div>
+      <textarea class="code-editor" id="code-editor" spellcheck="false"></textarea>
+    </div>
+    <div class="preview-pane">
+      <div class="pane-header">preview</div>
+      <iframe id="preview-frame"></iframe>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  // ─── Navigation ─────────────────────────────────────────────────────────────
+  const chapters = document.querySelectorAll('.chapter');
+  const navItems = document.querySelectorAll('.nav-item');
+  const topbarTitle = document.getElementById('topbar-title');
+  const content = document.getElementById('content');
+  const playgroundUI = document.getElementById('playground-ui');
+  const topbar = document.getElementById('topbar');
+
+  const titles = {
+    intro: 'Introduction',
+    ch1: 'Template Basics',
+    ch2: 'Directives',
+    ch3: 'First Component',
+    ch4: 'Lifecycle',
+    ch5: 'Reactive Properties',
+    ch6: 'Styles & Shadow DOM',
+    ch7: 'Events & Refs',
+    ch8: 'Composition Patterns',
+    ch9: 'Context API',
+    playground: 'Playground',
+  };
+
+  window.goToChapter = (id) => {
+    chapters.forEach(c => c.classList.remove('active'));
+    navItems.forEach(n => n.classList.remove('active'));
+
+    const chapter = document.getElementById(`chapter-${id}`);
+    if (chapter) chapter.classList.add('active');
+
+    const navItem = document.querySelector(`[data-chapter="${id}"]`);
+    if (navItem) navItem.classList.add('active');
+
+    topbarTitle.textContent = titles[id] || id;
+
+    const isPlayground = id === 'playground';
+    content.style.display = isPlayground ? 'none' : '';
+    playgroundUI.style.display = isPlayground ? 'flex' : 'none';
+    document.getElementById('topbar').querySelector('.actions').style.display = isPlayground ? 'none' : '';
+
+    window.scrollTo(0, 0);
+  };
+
+  navItems.forEach(item => {
+    item.addEventListener('click', () => goToChapter(item.dataset.chapter));
+  });
+
+  document.getElementById('prev-btn').addEventListener('click', () => {
+    const order = ['intro','ch1','ch2','ch3','ch4','ch5','ch6','ch7','ch8','ch9','playground'];
+    const active = document.querySelector('.nav-item.active');
+    const cur = order.indexOf(active?.dataset.chapter);
+    if (cur > 0) goToChapter(order[cur - 1]);
+  });
+
+  document.getElementById('next-btn').addEventListener('click', () => {
+    const order = ['intro','ch1','ch2','ch3','ch4','ch5','ch6','ch7','ch8','ch9','playground'];
+    const active = document.querySelector('.nav-item.active');
+    const cur = order.indexOf(active?.dataset.chapter);
+    if (cur < order.length - 1) goToChapter(order[cur + 1]);
+  });
+
+  // ─── Playground ─────────────────────────────────────────────────────────────
+  const LIT_CDN = 'https://cdn.jsdelivr.net/npm/lit@3/+esm';
+
+  const examples = {
+    counter: `import { LitElement, html, css } from '${LIT_CDN}';
+
+class CounterEl extends LitElement {
+  static properties = { count: { type: Number } };
+
+  static styles = css\`
+    :host { display: flex; flex-direction: column; align-items: center; padding: 32px; font-family: sans-serif; gap: 16px; }
+    .count { font-size: 64px; font-weight: 900; }
+    .controls { display: flex; gap: 8px; }
+    button { padding: 10px 24px; font-size: 16px; cursor: pointer; border: 2px solid #333; background: #fff; border-radius: 6px; }
+    button:hover { background: #f0f0f0; }
+    button.reset { border-color: #e00; color: #e00; }
+  \`;
+
+  constructor() {
+    super();
+    this.count = 0;
+  }
+
+  render() {
+    return html\`
+      <div class="count">\${this.count}</div>
+      <div class="controls">
+        <button @click=\${() => this.count--}>−</button>
+        <button @click=\${() => this.count = 0} class="reset">Reset</button>
+        <button @click=\${() => this.count++}>+</button>
+      </div>
+    \`;
+  }
+}
+
+customElements.define('counter-el', CounterEl);
+document.body.innerHTML = '<counter-el></counter-el>';`,
+
+    todo: `import { LitElement, html, css } from '${LIT_CDN}';
+
+class TodoApp extends LitElement {
+  static properties = {
+    _items: { state: true },
+    _input: { state: true },
+  };
+
+  static styles = css\`
+    :host { display: block; max-width: 400px; margin: 32px auto; font-family: system-ui; }
+    h2 { font-size: 24px; font-weight: 700; margin-bottom: 16px; }
+    .add { display: flex; gap: 8px; margin-bottom: 16px; }
+    input { flex: 1; padding: 8px 12px; border: 1.5px solid #ccc; border-radius: 6px; font-size: 14px; outline: none; }
+    input:focus { border-color: #0070f3; }
+    button { padding: 8px 16px; background: #0070f3; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    li { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #eee; font-size: 15px; }
+    li.done span { text-decoration: line-through; color: #999; }
+    li button { background: none; color: #e00; padding: 2px 8px; font-size: 12px; }
+  \`;
+
+  constructor() {
+    super();
+    this._items = [
+      { id: 1, text: 'Learn lit-html', done: true },
+      { id: 2, text: 'Build a LitElement', done: false },
+    ];
+    this._input = '';
+  }
+
+  _add() {
+    if (!this._input.trim()) return;
+    this._items = [...this._items, { id: Date.now(), text: this._input, done: false }];
+    this._input = '';
+  }
+
+  _toggle(id) {
+    this._items = this._items.map(i => i.id === id ? {...i, done: !i.done} : i);
+  }
+
+  _remove(id) {
+    this._items = this._items.filter(i => i.id !== id);
+  }
+
+  render() {
+    return html\`
+      <h2>Todos (\${this._items.filter(i => !i.done).length} left)</h2>
+      <div class="add">
+        <input
+          .value=\${this._input}
+          @input=\${e => this._input = e.target.value}
+          @keydown=\${e => e.key === 'Enter' && this._add()}
+          placeholder="Add a task..."
+        />
+        <button @click=\${this._add}>Add</button>
+      </div>
+      <ul>
+        \${this._items.map(item => html\`
+          <li class=\${item.done ? 'done' : ''}>
+            <input type="checkbox" .checked=\${item.done} @change=\${() => this._toggle(item.id)} />
+            <span>\${item.text}</span>
+            <button @click=\${() => this._remove(item.id)}>✕</button>
+          </li>
+        \`)}
+      </ul>
+    \`;
+  }
+}
+
+customElements.define('todo-app', TodoApp);
+document.body.innerHTML = '<todo-app></todo-app>';`,
+
+    fetch: `import { LitElement, html, css, nothing } from '${LIT_CDN}';
+
+class UserCard extends LitElement {
+  static properties = {
+    userId: { type: Number },
+    _user: { state: true },
+    _loading: { state: true },
+    _error: { state: true },
+  };
+
+  static styles = css\`
+    :host { display: block; max-width: 300px; margin: 32px auto; font-family: system-ui; }
+    .card { border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; }
+    .avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #6c63ff, #3ecfda); display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 16px; }
+    h2 { margin: 0 0 4px; font-size: 20px; }
+    p { margin: 0; color: #666; font-size: 14px; }
+    .controls { margin-bottom: 16px; display: flex; gap: 8px; }
+    button { flex: 1; padding: 8px; cursor: pointer; border: 1.5px solid #ddd; border-radius: 8px; background: #fff; font-size: 13px; }
+    button:hover { border-color: #6c63ff; color: #6c63ff; }
+    .loading { color: #999; text-align: center; padding: 32px; }
+    .error { color: #e00; text-align: center; padding: 16px; }
+  \`;
+
+  constructor() {
+    super();
+    this.userId = 1;
+    this._user = null;
+    this._loading = false;
+    this._error = null;
+  }
+
+  updated(changed) {
+    if (changed.has('userId')) this._fetchUser();
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this._fetchUser();
+  }
+
+  async _fetchUser() {
+    this._loading = true;
+    this._error = null;
+    try {
+      const res = await fetch(\`https://jsonplaceholder.typicode.com/users/\${this.userId}\`);
+      if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+      this._user = await res.json();
+    } catch(e) {
+      this._error = e.message;
+    } finally {
+      this._loading = false;
+    }
+  }
+
+  render() {
+    return html\`
+      <div class="controls">
+        \${[1,2,3,4,5].map(n => html\`
+          <button @click=\${() => this.userId = n} ?disabled=\${this.userId === n}>\${n}</button>
+        \`)}
+      </div>
+      \${this._loading ? html\`<div class="loading">Loading...</div>\` : nothing}
+      \${this._error ? html\`<div class="error">Error: \${this._error}</div>\` : nothing}
+      \${this._user && !this._loading ? html\`
+        <div class="card">
+          <div class="avatar">\${this._user.name[0]}</div>
+          <h2>\${this._user.name}</h2>
+          <p>\${this._user.email}</p>
+          <p style="margin-top:8px;font-size:12px;color:#999">\${this._user.company.name}</p>
+        </div>
+      \` : nothing}
+    \`;
+  }
+}
+
+customElements.define('user-card', UserCard);
+document.body.innerHTML = '<user-card></user-card>';`,
+
+    events: `import { LitElement, html, css } from '${LIT_CDN}';
+
+// Child component dispatches custom events
+class ColorPicker extends LitElement {
+  static properties = { selected: { type: String, reflect: true } };
+
+  static styles = css\`
+    :host { display: block; }
+    h3 { margin: 0 0 12px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #666; }
+    .swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+    .swatch { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: transform 0.15s; }
+    .swatch:hover { transform: scale(1.1); }
+    .swatch.active { border-color: #333; }
+  \`;
+
+  _colors = ['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#845EC2','#FF9671'];
+
+  _pick(color) {
+    this.selected = color;
+    this.dispatchEvent(new CustomEvent('color-pick', {
+      detail: { color },
+      bubbles: true,
+      composed: true,
+    }));
+  }
+
+  render() {
+    return html\`
+      <h3>Pick a color</h3>
+      <div class="swatches">
+        \${this._colors.map(c => html\`
+          <div class="swatch \${this.selected === c ? 'active' : ''}"
+            style="background:\${c}"
+            @click=\${() => this._pick(c)}
+          ></div>
+        \`)}
+      </div>
+    \`;
+  }
+}
+customElements.define('color-picker', ColorPicker);
+
+// Parent listens for the custom event
+class ColorDemo extends LitElement {
+  static properties = { _color: { state: true } };
+
+  static styles = css\`
+    :host { display: block; font-family: system-ui; padding: 32px; max-width: 400px; margin: 0 auto; }
+    .preview { height: 120px; border-radius: 16px; margin: 24px 0; transition: background 0.3s; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; color: rgba(255,255,255,0.9); }
+  \`;
+
+  constructor() { super(); this._color = '#4D96FF'; }
+
+  render() {
+    return html\`
+      <color-picker
+        .selected=\${this._color}
+        @color-pick=\${e => this._color = e.detail.color}
+      ></color-picker>
+      <div class="preview" style="background:\${this._color}">
+        \${this._color}
+      </div>
+    \`;
+  }
+}
+customElements.define('color-demo', ColorDemo);
+document.body.innerHTML = '<color-demo></color-demo>';`,
+
+    directives: `import { LitElement, html, css, nothing } from '${LIT_CDN}';
+import { repeat } from 'https://cdn.jsdelivr.net/npm/lit@3/directives/repeat.js/+esm';
+import { classMap } from 'https://cdn.jsdelivr.net/npm/lit@3/directives/class-map.js/+esm';
+
+class DirectivesDemo extends LitElement {
+  static properties = {
+    _items: { state: true },
+    _filter: { state: true },
+  };
+
+  static styles = css\`
+    :host { display: block; font-family: system-ui; padding: 24px; max-width: 480px; margin: 0 auto; }
+    h2 { margin: 0 0 16px; font-weight: 700; }
+    .filters { display: flex; gap: 6px; margin-bottom: 16px; }
+    button { padding: 6px 14px; border-radius: 20px; border: 1.5px solid #ddd; background: #fff; cursor: pointer; font-size: 13px; }
+    button.active { background: #0070f3; color: #fff; border-color: #0070f3; }
+    .item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; margin-bottom: 6px; background: #f9f9f9; transition: all 0.15s; }
+    .item.done { opacity: 0.5; }
+    .item.done .label { text-decoration: line-through; }
+    .item .tag { font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
+    .tag-work { background: #dbeafe; color: #1d4ed8; }
+    .tag-personal { background: #dcfce7; color: #16a34a; }
+    input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; }
+    .label { flex: 1; font-size: 14px; }
+    p { color: #999; text-align: center; font-size: 14px; margin-top: 24px; }
+  \`;
+
+  constructor() {
+    super();
+    this._filter = 'all';
+    this._items = [
+      { id: 1, label: 'Write tests', tag: 'work', done: false },
+      { id: 2, label: 'Read documentation', tag: 'personal', done: true },
+      { id: 3, label: 'Deploy to prod', tag: 'work', done: false },
+      { id: 4, label: 'Go for a run', tag: 'personal', done: false },
+      { id: 5, label: 'Code review', tag: 'work', done: true },
+    ];
+  }
+
+  _toggle(id) {
+    this._items = this._items.map(i => i.id === id ? {...i, done: !i.done} : i);
+  }
+
+  get _filtered() {
+    if (this._filter === 'all') return this._items;
+    if (this._filter === 'active') return this._items.filter(i => !i.done);
+    return this._items.filter(i => i.done);
+  }
+
+  render() {
+    const filters = ['all', 'active', 'done'];
+    return html\`
+      <h2>Directives Demo</h2>
+      <div class="filters">
+        \${filters.map(f => html\`
+          <button class=\${classMap({ active: this._filter === f })} @click=\${() => this._filter = f}>\${f}</button>
+        \`)}
+      </div>
+      \${this._filtered.length === 0 ? html\`<p>Nothing here.</p>\` : nothing}
+      \${repeat(
+        this._filtered,
+        item => item.id,
+        item => html\`
+          <div class=\${classMap({ item: true, done: item.done })}>
+            <input type="checkbox" .checked=\${item.done} @change=\${() => this._toggle(item.id)} />
+            <span class="label">\${item.label}</span>
+            <span class="tag tag-\${item.tag}">\${item.tag}</span>
+          </div>
+        \`
+      )}
+    \`;
+  }
+}
+customElements.define('directives-demo', DirectivesDemo);
+document.body.innerHTML = '<directives-demo></directives-demo>';`,
+
+    controller: `import { LitElement, html, css } from '${LIT_CDN}';
+
+// Reactive Controller: encapsulates a countdown timer
+class TimerController {
+  constructor(host, duration) {
+    this.host = host;
+    this.duration = duration;
+    this.remaining = duration;
+    this.running = false;
+    this._interval = null;
+    host.addController(this);
+  }
+
+  hostConnected() {}
+  hostDisconnected() { this._stop(); }
+
+  start() {
+    if (this.running) return;
+    this.running = true;
+    this._interval = setInterval(() => {
+      this.remaining = Math.max(0, this.remaining - 1);
+      if (this.remaining === 0) this._stop();
+      this.host.requestUpdate();
+    }, 1000);
+  }
+
+  pause() {
+    this.running = false;
+    clearInterval(this._interval);
+  }
+
+  reset() {
+    this._stop();
+    this.remaining = this.duration;
+    this.host.requestUpdate();
+  }
+
+  _stop() {
+    this.running = false;
+    clearInterval(this._interval);
+  }
+
+  get progress() { return 1 - this.remaining / this.duration; }
+  get done() { return this.remaining === 0; }
+}
+
+class TimerWidget extends LitElement {
+  static styles = css\`
+    :host { display: flex; flex-direction: column; align-items: center; padding: 40px 24px; font-family: system-ui; gap: 24px; }
+    h2 { margin: 0; font-weight: 800; font-size: 28px; }
+    .ring { position: relative; width: 160px; height: 160px; }
+    svg { transform: rotate(-90deg); }
+    circle.bg { stroke: #e8e8e8; fill: none; stroke-width: 12; }
+    circle.progress { fill: none; stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke 0.3s; }
+    .label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 900; }
+    .done .label { font-size: 48px; }
+    .controls { display: flex; gap: 8px; }
+    button { padding: 10px 24px; border-radius: 8px; border: 1.5px solid #ddd; background: #fff; cursor: pointer; font-size: 14px; font-weight: 600; }
+    button.primary { background: #0070f3; color: #fff; border-color: #0070f3; }
+    button:hover:not(.primary) { border-color: #999; }
+  \`;
+
+  timer = new TimerController(this, 30);
+
+  get _strokeColor() {
+    if (this.timer.done) return '#6bcb77';
+    if (this.timer.progress > 0.7) return '#ff6b6b';
+    return '#0070f3';
+  }
+
+  render() {
+    const R = 70;
+    const C = 2 * Math.PI * R;
+    const offset = C * (1 - this.timer.progress);
+
+    return html\`
+      <h2>Reactive Controller</h2>
+      <div class="ring \${this.timer.done ? 'done' : ''}">
+        <svg viewBox="0 0 160 160" width="160" height="160">
+          <circle class="bg" cx="80" cy="80" r=\${R} />
+          <circle class="progress"
+            cx="80" cy="80" r=\${R}
+            stroke=\${this._strokeColor}
+            stroke-dasharray=\${C}
+            stroke-dashoffset=\${offset}
+          />
+        </svg>
+        <div class="label">\${this.timer.done ? '🎉' : this.timer.remaining}</div>
+      </div>
+      <div class="controls">
+        \${this.timer.running
+          ? html\`<button @click=\${() => this.timer.pause()}>Pause</button>\`
+          : html\`<button class="primary" @click=\${() => this.timer.start()} ?disabled=\${this.timer.done}>Start</button>\`
+        }
+        <button @click=\${() => this.timer.reset()}>Reset</button>
+      </div>
+    \`;
+  }
+}
+customElements.define('timer-widget', TimerWidget);
+document.body.innerHTML = '<timer-widget></timer-widget>';`
+  };
+
+  const editor = document.getElementById('code-editor');
+  const frame = document.getElementById('preview-frame');
+  const runBtn = document.getElementById('run-btn');
+  const chips = document.querySelectorAll('.example-chip');
+
+  function runCode(code) {
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+  </style>
+</head>
+<body>
+<script type="module">
+${code}
+<\/script>
+</body>
+</html>`;
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    frame.src = url;
+  }
+
+  function loadExample(name) {
+    editor.value = examples[name];
+    chips.forEach(c => c.classList.toggle('active', c.dataset.example === name));
+    runCode(examples[name]);
+  }
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => loadExample(chip.dataset.example));
+  });
+
+  runBtn.addEventListener('click', () => runCode(editor.value));
+
+  editor.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const s = editor.selectionStart;
+      editor.value = editor.value.substring(0, s) + '  ' + editor.value.substring(editor.selectionEnd);
+      editor.selectionStart = editor.selectionEnd = s + 2;
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      runCode(editor.value);
+    }
+  });
+
+  // Initial playground load
+  loadExample('counter');
+</script>
+
+</body>
+</html>
